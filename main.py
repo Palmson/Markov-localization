@@ -52,7 +52,6 @@ class Step:
 
 def normalize(matrix):
     retVal = matrix.copy()
-
     retVal = retVal - retVal.mean()
     retVal = retVal / np.abs(retVal).max()
 
@@ -61,26 +60,20 @@ def normalize(matrix):
 
 def calcPrior(oldPosterior, direction):
     global epsilon, map
-
+    
     steps = [3, 4, 5, 6, 7]
     stepProbability = [0, 0, 0, 0.05, 0.2, 0.5, 0.2, 0.05]
-
     prior = np.full((WIDTH, HEIGHT), 0.0)
 
     for i in range(0, WIDTH):
         for j in range(0, HEIGHT):
-
             if direction == Direction.Right or direction == Direction.Left:
-
                 if map[i, :].__contains__(1):
-
                     if direction == Direction.Right:
                         for stepSize in steps:
-
                             if map[i, j] == 1:
                                 break
                             else:
-
                                 if j - stepSize >= 0:
                                     skip = False
                                     for t in range(0, stepSize + 1):
@@ -92,11 +85,8 @@ def calcPrior(oldPosterior, direction):
                                             prior[i, j] += oldPosterior[i, j - stepSize] * stepProbability[stepSize]
                                     else:
                                         break
-
                     else:
-
                         for stepSize in steps:
-
                             if map[i, j] == 1:
                                 break
                             else:
@@ -111,9 +101,7 @@ def calcPrior(oldPosterior, direction):
                                             prior[i, j] += oldPosterior[i, j + stepSize] * stepProbability[stepSize]
                                     else:
                                         break
-
                 else:
-
                     for stepSize in steps:
                         if direction == Direction.Right:
                             if j - stepSize >= 0:
@@ -122,19 +110,13 @@ def calcPrior(oldPosterior, direction):
                             if j + stepSize < HEIGHT:
                                 prior[i, j] += oldPosterior[i, j + stepSize] * stepProbability[stepSize]
 
-
             elif direction == Direction.Down or direction == Direction.Up:
-
                 if map[:, j].__contains__(1):
-
                     if direction == Direction.Up:
-
                         for stepSize in steps:
-
                             if map[i, j] == 1:
                                 break
                             else:
-
                                 if i + stepSize < HEIGHT:
                                     skip = False
                                     for t in range(0, stepSize + 1):
@@ -148,13 +130,10 @@ def calcPrior(oldPosterior, direction):
                                         break
 
                     else:
-
                         for stepSize in steps:
-
                             if map[i, j] == 1:
                                 break
                             else:
-
                                 if i - stepSize >= 0:
                                     skip = False
                                     for t in range(0, stepSize + 1):
@@ -167,9 +146,7 @@ def calcPrior(oldPosterior, direction):
                                                 stepSize]
                                     else:
                                         break
-
                 else:
-
                     for stepSize in steps:
                         if direction == Direction.Up:
                             if i + stepSize < HEIGHT:
@@ -197,34 +174,24 @@ def calcPosterior(sensorValue, direction, prior):
 
     for i in range(0, WIDTH):
         for j in range(0, HEIGHT):
-
             if direction == Direction.Right or direction == Direction.Left:
-
                 if map[i, :].__contains__(1):
-
                     if direction == Direction.Right:
-
                         if map[i, j] == 1:
                             continue
                         else:
-
                             for k in range(max(0, sensorValue - 2), sensorValue + 2 + 1):
                                 if j + k + 1 == HEIGHT or (j + k + 1 < HEIGHT and map[i, j + k + 1] == 1):
                                     posterior[i, j] = prior[i, j] * sensorProbability[k]
-
                     elif direction == Direction.Left:
-
                         if map[i, j] == 1:
                             continue
                         else:
-
                             for k in range(max(0, sensorValue - 2), sensorValue + 2 + 1):
                                 if j - k - 1 == -1 or (j - k - 1 >= 0 and map[i, j - k - 1] == 1):
                                     posterior[i, j] = prior[i, j] * sensorProbability[k]
 
-
                 else:
-
                     if direction == Direction.Right:
                         for k in range(sensorValue - 2, sensorValue + 2 + 1):
                             if WIDTH > WIDTH - k - 1 >= 0:
@@ -234,35 +201,25 @@ def calcPosterior(sensorValue, direction, prior):
                             if 0 <= k < HEIGHT:
                                 posterior[i, k] = prior[i, k] * sensorProbability[k]
 
-
             elif direction == Direction.Down or direction == Direction.Up:
-
                 if map[:, j].__contains__(1):
-
                     if direction == Direction.Up:
-
                         if map[i, j] == 1:
                             continue
                         else:
-
                             for k in range(max(0, sensorValue - 2), sensorValue + 2 + 1):
                                 if i - k - 1 == -1 or (i - k - 1 >= 0 and map[i - k - 1, j] == 1):
                                     posterior[i, j] = prior[i, j] * sensorProbability[k]
 
-
                     else:
-
                         if map[i, j] == 1:
                             continue
                         else:
-
                             for k in range(max(0, sensorValue - 2), sensorValue + 2 + 1):
                                 if i + k + 1 == HEIGHT or (i + k + 1 < HEIGHT and map[i + k + 1, j] == 1):
                                     posterior[i, j] = prior[i, j] * sensorProbability[k]
 
-
                 else:
-
                     if direction == Direction.Up:
                         for k in range(max(0, sensorValue - 2), sensorValue + 2 + 1):
                             if 0 <= k < WIDTH:
@@ -286,26 +243,23 @@ def getSensorDerivation():
 
     return choices(population, weights)[0]
 
-
 def getStepSize():
     population = [3, 4, 5, 6, 7]
     weights = [0.05, 0.2, 0.5, 0.2, 0.05]
 
     return choices(population, weights)[0]
 
-
 def doStep(direction):
     global realPos
-
     stepSize = getStepSize()
-
+    
     if direction == Direction.Up:
 
         if realPos.y - stepSize < 0:
             stepSize = realPos.y
-
+            
         realPos.y = realPos.y - stepSize
-
+        
     elif direction == Direction.Right:
 
         if realPos.x + stepSize > WIDTH:
@@ -327,61 +281,47 @@ def doStep(direction):
 
         realPos.x = realPos.x - stepSize
 
-
 def senseDistance(direction):
     global realPos
-
     distance = 0
 
     if direction == Direction.Up:
-
         for i in range(1, realPos.y + 1):
-
             if realPos.y - i < 0:
                 break
-
             if map[realPos.x - i, realPos.y] == 0:
                 distance += 1
             else:
                 break
 
     elif direction == Direction.Right:
-
         for i in range(1, WIDTH - realPos.x):
-
             if realPos.x + i > WIDTH:
                 break
-
             if map[realPos.x, realPos.y + i] == 0:
                 distance += 1
             else:
                 break
 
     elif direction == Direction.Down:
-
         for i in range(1, HEIGHT - realPos.y):
-
             if realPos.y + i > HEIGHT:
                 break
-
             if map[realPos.x, realPos.y + i] == 0:
                 distance += 1
             else:
                 break
-
+            
     elif direction == Direction.Left:
         for i in range(1, realPos.x + 1):
-
             if realPos.x - i < 0:
                 break
-
             if map[realPos.x - i, realPos.y] == 0:
                 distance += 1
             else:
                 break
-
+            
     return distance
-
 
 def wait_for_button():
     global paused
@@ -404,18 +344,13 @@ def update_probability(last_action_index):
     return new_transition_matrix
 
 def display_text(x, y, text='0.0'):
-    # Calculate the center of the tile where you want to display the text
     tile_center_x = (x * TILE_SIZE) + (TILE_SIZE // 2)
     tile_center_y = (y * TILE_SIZE) + (TILE_SIZE // 2)
-    # Create a font object
-    font = pygame.font.Font(None, 24)  # You can adjust the font size as needed
-    # Render the text
-    text_surface = font.render(text, True, BLACK)  # Render text with black color
-    # Get the rectangle of the text surface
+
+    font = pygame.font.Font(None, 24)  
+    text_surface = font.render(text, True, BLACK) 
     text_rect = text_surface.get_rect()
-    # Set the center of the text rectangle to the center of the tile
     text_rect.center = (tile_center_x, tile_center_y)
-    # Blit the text surface onto the screen
     screen.blit(text_surface, text_rect)
 
 
